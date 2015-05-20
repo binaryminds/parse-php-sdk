@@ -299,10 +299,12 @@ class ParseQuery
     if (ParseUser::getCurrentUser()) {
       $sessionToken = ParseUser::getCurrentUser()->getSessionToken();
     }
-    $queryString = $this->buildQueryString($this->_getOptions());
-    $result = ParseClient::_request('GET',
-        '/1/classes/' . $this->className .
-        '?' . $queryString, $sessionToken, null, $useMasterKey);
+
+    $options = $this->_getOptions();
+    $options['_method'] = 'GET';
+    $queryString = json_encode(ParseClient::_encode($options, true));
+    $result = ParseClient::_request('POST', '/1/classes/' . $this->className, $sessionToken, $queryString, $useMasterKey);
+
     $output = array();
     foreach ($result['results'] as $row) {
       $obj = ParseObject::create($this->className, $row['objectId']);
